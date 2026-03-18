@@ -1,38 +1,60 @@
+import { View,Text,Image } from "react-native";
+import styles from "../assets/styles/login.styles";
 import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { TextInput } from "react-native-web";
 
-export default function Home() {
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async () => {
+  
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the BookStore App!</Text>
+      <View style={styles.topIllustration}>
 
-      <Link href="/(auth)" style={styles.link}>
-        Go to Login
-      </Link>
-      <Link href="/(auth)/signup" style={styles.link}>
-        Go to Signup
-      </Link>
+        <Image
+          source={require("../assets/images/Curious-bro.png")}
+          style={styles.illustrationImage}
+          resizeMode="contain"
+        />
+      </View>
+      <Text>login</Text>
+
+      <View style={styles.card}>
+        <View style={styles.formContainer}>
+          <Ionicons name="person" size={24} color="black" />
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+            secureTextEntry={!showPassword}
+          />
+          <Ionicons
+            name={showPassword ? "eye-off" : "eye"}
+            size={24}
+            color="black"
+            onPress={() => setShowPassword(!showPassword)}
+          />
+
+
+        </View>
+
+
+
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333",
-  },
-  link: {
-    fontSize: 18,
-    color: "#007bff",
-    marginVertical: 10,
-  },
-});

@@ -2,18 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import styles from "../../assets/styles/login.styles";
-import COLORS from "../../constants/colors";
+import COLORS from "../../constant/color.js";
+import styles from "../../style/login.style.js";
 
 import { useAuthStore } from "../../store/authStore";
 
@@ -40,7 +40,7 @@ export default function Login() {
         {/* ILLUSTRATION */}
         <View style={styles.topIllustration}>
           <Image
-            source={require("../../assets/images/i.png")}
+            source={require("../../assets/images/Curious-bro.png")}
             style={styles.illustrationImage}
             resizeMode="contain"
           />

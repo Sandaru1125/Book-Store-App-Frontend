@@ -2,18 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import styles from "../../assets/styles/signup.styles";
-import COLORS from "../../constants/colors";
+import COLORS from "../../constant/color.js";
 import { useAuthStore } from "../../store/authStore";
+import styles from "../../style/signup.style.js";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
