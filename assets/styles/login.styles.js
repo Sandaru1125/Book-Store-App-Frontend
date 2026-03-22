@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     padding: 20,
     justifyContent: "center",
+    marginBottom: 100,
   },
   scrollViewStyle: {
     flex: 1,
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 2,
     borderColor: COLORS.border,
-    marginTop: -24,
+    marginTop: 60,
   },
   header: {
     alignItems: "center",
@@ -45,6 +46,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: COLORS.textPrimary,
     marginBottom: 8,
+    textAlign: "center",
+    alignSelf: "center",
   },
   subtitle: {
     fontSize: 16,

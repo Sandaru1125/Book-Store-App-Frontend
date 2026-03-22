@@ -12,8 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import styles from "../../assets/styles/login.styles.js";
 import COLORS from "../../constant/color.js";
-import styles from "../../style/login.style.js";
 
 import { useAuthStore } from "../../store/authStore";
 

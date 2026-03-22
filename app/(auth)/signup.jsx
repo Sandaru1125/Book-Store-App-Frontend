@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import styles from "../../assets/styles/signup.styles.js";
 import COLORS from "../../constant/color.js";
 import { useAuthStore } from "../../store/authStore";
-import styles from "../../style/signup.style.js";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
