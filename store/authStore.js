@@ -11,7 +11,7 @@ export const useAuthStore = create((set) => ({
   register: async (username, email, password) => {
     set({ isLoading: true });
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true });
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,13 +73,30 @@ export const useAuthStore = create((set) => ({
   checkAuth: async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const userJson = await AsyncStorage.getItem("user");
-      const user = userJson ? JSON.parse(userJson) : null;
+      if (!token) {
+        set({ isCheckingAuth: false, token: null, user: null });
+        return;
+      }
 
-      set({ token, user });
+      // verify token with backend
+      const response = await fetch(`${API_URL}/api/auth/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        set({ token, user: data.user, isCheckingAuth: false });
+      } else {
+        // if token is invalid or expired, clear it
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("user");
+        set({ token: null, user: null, isCheckingAuth: false });
+      }
     } catch (error) {
       console.log("Auth check failed", error);
-    } finally {
       set({ isCheckingAuth: false });
     }
   },

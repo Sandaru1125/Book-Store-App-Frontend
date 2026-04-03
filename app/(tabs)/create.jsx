@@ -2,16 +2,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import styles from "../../assets/styles/create.styles";
 import COLORS from "../../constant/color";
@@ -30,7 +30,7 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, logout } = useAuthStore();
 
   console.log(token);
 
@@ -93,6 +93,15 @@ export default function Create() {
     try {
       setLoading(true);
 
+      if (!token) {
+        throw new Error("You must be logged in to create a post");
+      }
+
+      console.log(
+        "Attempting to create book with token:",
+        token.substring(0, 10) + "...",
+      );
+
       // get file extension from URI or default to jpeg
       const uriParts = image.split(".");
       const fileType = uriParts[uriParts.length - 1];
@@ -102,7 +111,7 @@ export default function Create() {
 
       const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
 
-      const response = await fetch(`${API_URL}/books`, {
+      const response = await fetch(`${API_URL}/api/books`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -111,13 +120,26 @@ export default function Create() {
         body: JSON.stringify({
           title,
           caption,
-          rating: rating.toString(),
+          rating: rating,
           image: imageDataUrl,
         }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Something went wrong");
+      if (!response.ok) {
+        console.error("Server error response:", data);
+
+        if (response.status === 401) {
+          Alert.alert(
+            "Session Expired",
+            "Your session has expired. Please login again.",
+          );
+          await logout();
+          return;
+        }
+
+        throw new Error(data.message || data.error || "Something went wrong");
+      }
 
       Alert.alert("Success", "Your book recommendation has been posted!");
       setTitle("");

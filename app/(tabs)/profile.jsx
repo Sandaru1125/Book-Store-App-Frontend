@@ -3,13 +3,13 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    RefreshControl,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { sleep } from ".";
 import styles from "../../assets/styles/profile.styles";
@@ -26,7 +26,7 @@ export default function Profile() {
   const [refreshing, setRefreshing] = useState(false);
   const [deleteBookId, setDeleteBookId] = useState(null);
 
-  const { token } = useAuthStore();
+  const { token, logout } = useAuthStore();
 
   const router = useRouter();
 
@@ -34,13 +34,18 @@ export default function Profile() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`${API_URL}/books/user`, {
+      const response = await fetch(`${API_URL}/api/books/user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
-      if (!response.ok)
+      if (!response.ok) {
+        if (response.status === 401) {
+          await logout();
+          return;
+        }
         throw new Error(data.message || "Failed to fetch user books");
+      }
 
       setBooks(data);
     } catch (error) {
@@ -62,7 +67,7 @@ export default function Profile() {
     try {
       setDeleteBookId(bookId);
 
-      const response = await fetch(`${API_URL}/books/${bookId}`, {
+      const response = await fetch(`${API_URL}/api/books/${bookId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

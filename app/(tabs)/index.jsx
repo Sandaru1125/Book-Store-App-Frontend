@@ -1,9 +1,8 @@
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    Text,
-    View,
+  FlatList,
+  RefreshControl,
+  Text,
+  View
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 
@@ -20,49 +19,44 @@ import { formatPublishDate } from "../../lib/utils";
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function Home() {
-  const { token } = useAuthStore();
+  const { token, logout } = useAuthStore();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
-  const fetchBooks = async (pageNum = 1, refresh = false) => {
+  // ✅ FETCH BOOKS (NO PAGINATION)
+  const fetchBooks = async (refresh = false) => {
     try {
       if (refresh) setRefreshing(true);
-      else if (pageNum === 1) setLoading(true);
+      else setLoading(true);
 
-      const response = await fetch(`${API_URL}/books?page=${pageNum}&limit=2`, {
+      const response = await fetch(`${API_URL}/api/books`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
-      if (!response.ok)
+
+      console.log("API DATA:", data); // 👈 debug
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await logout();
+          return;
+        }
         throw new Error(data.message || "Failed to fetch books");
+      }
 
-      // todo fix it later
-      // setBooks((prevBooks) => [...prevBooks, ...data.books]);
-
-      const uniqueBooks =
-        refresh || pageNum === 1
-          ? data.books
-          : Array.from(
-              new Set([...books, ...data.books].map((book) => book._id)),
-            ).map((id) =>
-              [...books, ...data.books].find((book) => book._id === id),
-            );
-
-      setBooks(uniqueBooks);
-
-      setHasMore(pageNum < data.totalPages);
-      setPage(pageNum);
+      // ✅ FIX: backend returns array directly
+      setBooks(data);
     } catch (error) {
       console.log("Error fetching books", error);
     } finally {
       if (refresh) {
         await sleep(800);
         setRefreshing(false);
-      } else setLoading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -70,27 +64,22 @@ export default function Home() {
     fetchBooks();
   }, []);
 
-  const handleLoadMore = async () => {
-    if (hasMore && !loading && !refreshing) {
-      await fetchBooks(page + 1);
-    }
-  };
-
+  // ✅ RENDER ITEM
   const renderItem = ({ item }) => (
     <View style={styles.bookCard}>
       <View style={styles.bookHeader}>
         <View style={styles.userInfo}>
           <Image
-            source={{ uri: item.user.profileImage }}
+            source={{ uri: item.user?.profilePicture }} // ✅ FIXED
             style={styles.avatar}
           />
-          <Text style={styles.username}>{item.user.username}</Text>
+          <Text style={styles.username}>{item.user?.username}</Text>
         </View>
       </View>
 
       <View style={styles.bookImageContainer}>
         <Image
-          source={item.image}
+          source={{ uri: item.image }} // ✅ FIXED
           style={styles.bookImage}
           contentFit="cover"
         />
@@ -98,10 +87,13 @@ export default function Home() {
 
       <View style={styles.bookDetails}>
         <Text style={styles.bookTitle}>{item.title}</Text>
+
         <View style={styles.ratingContainer}>
           {renderRatingStars(item.rating)}
         </View>
+
         <Text style={styles.caption}>{item.caption}</Text>
+
         <Text style={styles.date}>
           Shared on {formatPublishDate(item.createdAt)}
         </Text>
@@ -109,6 +101,7 @@ export default function Home() {
     </View>
   );
 
+  // ✅ STAR RATING
   const renderRatingStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -138,13 +131,11 @@ export default function Home() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => fetchBooks(1, true)}
+            onRefresh={() => fetchBooks(true)}
             colors={[COLORS.primary]}
             tintColor={COLORS.primary}
           />
         }
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
         ListHeaderComponent={
           <View style={styles.header}>
             <Text style={styles.headerTitle}>BookWorm 🐛</Text>
@@ -152,15 +143,6 @@ export default function Home() {
               Discover great reads from the community👇
             </Text>
           </View>
-        }
-        ListFooterComponent={
-          hasMore && books.length > 0 ? (
-            <ActivityIndicator
-              style={styles.footerLoader}
-              size="small"
-              color={COLORS.primary}
-            />
-          ) : null
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
